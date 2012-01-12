@@ -182,7 +182,7 @@ describe Redis::Objects do
     @roster.pitchers.increment.should == 1
     @roster.basic.increment.should == 1
     @roster2.basic.decrement.should == 0
-    @roster.basic.get.should == 0
+    @roster2.basic.get.should == 0
   end
   
   it "should support class-level increment/decrement of counters" do
@@ -275,6 +275,17 @@ describe Redis::Objects do
       end
     value.should == 42
     @roster.available_slots.should == 8
+
+    # ensure decrement can take a by argument
+    @roster.basic.reset
+    value = 
+      @roster.basic.decrement(5) do |v| 
+        v < 0 ? nil : v 
+      end
+    value.should == nil
+    @roster.basic.value.should == 0
+    @roster.basic.get.should == 0
+    
   end
 
   it "should take an atomic block for increment/decrement class methods" do
